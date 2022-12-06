@@ -19,26 +19,23 @@ typedef struct {
 
 TreeNode *CreateTree(char *);
 
-TreeNode *SearchNode();
-
-void PrintDifferentWords(TreeNode *);
-
-TreeNode *CreateNode(char *);
-
-void PrintTree(TreeNode *);
+TreeNode *PrintAlphabeticOrder(TreeNode *root);
 
 char *toLower(char *);
 
-void Menu(TreeNode *);
-
 int isUpperCase(char);
-
-TreeNode *PrintAlphabeticOrder(TreeNode *root);
 
 void SearchWordInTree(TreeNode *);
 
+void Menu(TreeNode *);
+
+void PrintDifferentWords(TreeNode *);
+
 int main(int argc, char **argv) {
     TreeNode *rootNode = CreateTree("Words.txt");
+    char text[10] = "MerHABa";
+    toLower(text);
+    printf("%s", text);
     Menu(rootNode);
     return 0;
 }
@@ -86,11 +83,23 @@ void SearchWordInTree(TreeNode *treeRoot) {
             flag = false;
             break;
         } else if (strcmp(treeRoot->word, word) > 0) {
-            treeRoot = treeRoot->rightSubTree;
-            depth++;
+            if (treeRoot->rightSubTree != NULL) {
+                treeRoot = treeRoot->rightSubTree;
+                depth++;
+            } else {
+                flag = false;
+                printf("Cannot found this word.\n");
+                break;
+            }
         } else if (strcmp(treeRoot->word, word) < 0) {
-            treeRoot = treeRoot->leftSubTree;
-            depth++;
+            if (treeRoot->leftSubTree != NULL) {
+                treeRoot = treeRoot->leftSubTree;
+                depth++;
+            } else {
+                flag = false;
+                printf("Cannot found this word.\n");
+                break;
+            }
         }
     }
     printf("\n");
@@ -121,7 +130,6 @@ TreeNode *CreateTree(char *fileName) {
     FILE *file = fopen(fileName, "r");
     while (fscanf(file, "%s", tempString) != EOF) {
         temp = CreateNode(tempString);
-//        printf("%s\n", tempString);
         onThisNode = rootTemp;
         if (rootTemp == NULL) {
             rootTemp = temp;
@@ -130,9 +138,7 @@ TreeNode *CreateTree(char *fileName) {
         } else {
             flag = true;
             while (flag) {
-//                printf("%s,%d--", onThisNode->word, onThisNode->usedTimes);
                 i = strcmp(onThisNode->word, tempString);
-//                printf("%d", i);
                 if (i == 0) {
                     onThisNode->usedTimes += 1;
                     flag = false;
@@ -156,10 +162,7 @@ TreeNode *CreateTree(char *fileName) {
                         break;
                     }
                 }
-
             }
-//            printf("\n");
-
         }
     }
     return rootTemp;

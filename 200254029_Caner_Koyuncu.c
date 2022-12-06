@@ -12,39 +12,32 @@ typedef struct {
     struct TreeNode *rightSubTree;
 } TreeNode;
 
-typedef struct {
-    struct TreeNode *TreeNode;
-    struct StackTreeNode *nextStack;
-} StackTreeNode;
-
-TreeNode *CreateTree(char *);
+TreeNode *CreateNode(char *);
 
 TreeNode *PrintAlphabeticOrder(TreeNode *root);
+
+TreeNode *CreateTree(char *);
 
 char *toLower(char *);
 
 int isUpperCase(char);
 
+void PrintDifferentWords(TreeNode *);
+
 void SearchWordInTree(TreeNode *);
 
 void Menu(TreeNode *);
 
-void PrintDifferentWords(TreeNode *);
-
 int main(int argc, char **argv) {
     TreeNode *rootNode = CreateTree("Words.txt");
-    char text[10] = "MerHABa";
-    toLower(text);
-    printf("%s", text);
     Menu(rootNode);
     return 0;
 }
 
 void Menu(TreeNode *treeRoot) {
     bool flag = true;
-    int selected;
-    while (flag) {
-        selected = 0;
+    int selected = 0;
+    do {
         printf("##################-Binary-Search-Tree-##################\n");
         printf("##  1-) Print different                               ##\n");
         printf("##  2-) Print different words in alphabetical order   ##\n");
@@ -52,23 +45,31 @@ void Menu(TreeNode *treeRoot) {
         printf("##  4-) Exit                                          ##\n");
         printf("########################################################\n");
         printf("Please select:");
-        scanf(" %d", &selected);
         printf("\n");
-        switch (selected) {
-            case 1:
-                PrintDifferentWords(treeRoot);
-                break;
-            case 2:
-                PrintAlphabeticOrder(treeRoot);
-                break;
-            case 3:
-                SearchWordInTree(treeRoot);
-                break;
-            case 4:
-                flag = false;
-                break;
+        int args = scanf("%d", &selected);
+        if (args < 1) {
+            char dummy;
+            scanf("%c", &dummy);  // eats a character off the buffer
+        } else {
+            switch (selected) {
+                case 1:
+                    PrintDifferentWords(treeRoot);
+                    break;
+                case 2:
+                    PrintAlphabeticOrder(treeRoot);
+                    break;
+                case 3:
+                    SearchWordInTree(treeRoot);
+                    break;
+                case 4:
+                    flag = false;
+                    break;
+                default:
+                    selected = 0;
+                    break;
+            }
         }
-    }
+    } while (flag);
 }
 
 void SearchWordInTree(TreeNode *treeRoot) {
@@ -138,6 +139,7 @@ TreeNode *CreateTree(char *fileName) {
         } else {
             flag = true;
             while (flag) {
+                printf("%s, ", onThisNode->word);
                 i = strcmp(onThisNode->word, tempString);
                 if (i == 0) {
                     onThisNode->usedTimes += 1;
@@ -163,9 +165,14 @@ TreeNode *CreateTree(char *fileName) {
                     }
                 }
             }
+            printf("\n");
         }
     }
     return rootTemp;
+}
+
+TreeNode *TreeBalancer() {
+
 }
 
 //TODO: Not working, need fix

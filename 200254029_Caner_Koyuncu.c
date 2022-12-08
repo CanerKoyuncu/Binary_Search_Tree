@@ -4,6 +4,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdbool.h>
+#include <minmax.h>
 
 typedef struct {
     char word[10];
@@ -21,16 +22,20 @@ TreeNode *CreateTree(char *);
 char *toLower(char *);
 
 int isUpperCase(char);
+int treeHeight(TreeNode*);
 
 void PrintDifferentWords(TreeNode *);
-
+int treeHeight(TreeNode*);
 void SearchWordInTree(TreeNode *);
-
+int BalanceValue(TreeNode*);
 void Menu(TreeNode *);
+TreeNode* TreeBalancer(TreeNode*);
 
 int main(int argc, char **argv) {
     TreeNode *rootNode = CreateTree("Words.txt");
+    TreeBalancer(rootNode);
     Menu(rootNode);
+    free(rootNode);
     return 0;
 }
 
@@ -45,12 +50,9 @@ void Menu(TreeNode *treeRoot) {
         printf("##  4-) Exit                                          ##\n");
         printf("########################################################\n");
         printf("Please select:");
+        scanf(" %d", &selected);
         printf("\n");
-        int args = scanf("%d", &selected);
-        if (args < 1) {
-            char dummy;
-            scanf("%c", &dummy);  // eats a character off the buffer
-        } else {
+
             switch (selected) {
                 case 1:
                     PrintDifferentWords(treeRoot);
@@ -67,7 +69,6 @@ void Menu(TreeNode *treeRoot) {
                 default:
                     selected = 0;
                     break;
-            }
         }
     } while (flag);
 }
@@ -80,10 +81,10 @@ void SearchWordInTree(TreeNode *treeRoot) {
     scanf("%s", word);
     while (flag) {
         if (strcmp(treeRoot->word, word) == 0) {
-            printf("%s        Depth %d     %d Time", treeRoot->word, depth, treeRoot->usedTimes);
+            printf("%s        Depth:%d     %d Time", treeRoot->word, depth, treeRoot->usedTimes);
             flag = false;
             break;
-        } else if (strcmp(treeRoot->word, word) > 0) {
+        } else if (strcmp(treeRoot->word, word) < 0) {
             if (treeRoot->rightSubTree != NULL) {
                 treeRoot = treeRoot->rightSubTree;
                 depth++;
@@ -92,7 +93,7 @@ void SearchWordInTree(TreeNode *treeRoot) {
                 printf("Cannot found this word.\n");
                 break;
             }
-        } else if (strcmp(treeRoot->word, word) < 0) {
+        } else if (strcmp(treeRoot->word, word) > 0) {
             if (treeRoot->leftSubTree != NULL) {
                 treeRoot = treeRoot->leftSubTree;
                 depth++;
@@ -110,14 +111,24 @@ TreeNode *PrintAlphabeticOrder(TreeNode *treeRoot) {
     if (treeRoot == NULL) {
         return NULL;
     }
-    PrintAlphabeticOrder(treeRoot->rightSubTree);
+    PrintAlphabeticOrder(treeRoot->leftSubTree);
     printf("%s        ", treeRoot->word);
     printf("times %d\n", treeRoot->usedTimes);
-    PrintAlphabeticOrder(treeRoot->leftSubTree);
+    PrintAlphabeticOrder(treeRoot->rightSubTree);
 }
 
 void PrintDifferentWords(TreeNode *treeRoot) {
 
+}
+
+TreeNode *CreateNode(char word[10]) {
+    TreeNode *treeNode;
+    treeNode = malloc(sizeof(TreeNode));
+    strcpy(treeNode->word, word);
+    treeNode->usedTimes = 1;
+    treeNode->leftSubTree = NULL;
+    treeNode->rightSubTree = NULL;
+    return treeNode;
 }
 
 TreeNode *CreateTree(char *fileName) {
@@ -139,40 +150,65 @@ TreeNode *CreateTree(char *fileName) {
         } else {
             flag = true;
             while (flag) {
-                printf("%s, ", onThisNode->word);
+//                printf("%s, ", onThisNode->word);
                 i = strcmp(onThisNode->word, tempString);
                 if (i == 0) {
                     onThisNode->usedTimes += 1;
                     flag = false;
                     break;
-                } else if (i < 0) {
+                } else if (i > 0) {
                     if (onThisNode->leftSubTree != NULL) {
                         onThisNode = onThisNode->leftSubTree;
                         continue;
                     } else {
                         onThisNode->leftSubTree = temp;
+//                        printf("___LEFT___");
+//                        printf(" %s",temp->word);
                         flag = false;
                         break;
                     }
-                } else if (i > 0) {
+                } else if (i < 0) {
                     if (onThisNode->rightSubTree != NULL) {
                         onThisNode = onThisNode->rightSubTree;
                         continue;
                     } else {
                         onThisNode->rightSubTree = temp;
+//                        printf("___RIGHT___");
+//                        printf(" %s",temp->word);
                         flag = false;
                         break;
                     }
                 }
             }
-            printf("\n");
+//            printf("\n");
         }
     }
     return rootTemp;
 }
 
-TreeNode *TreeBalancer() {
+TreeNode*TreeBalancer(TreeNode* tree) {
+    int value;
+    TreeNode* lastRoot;
+    TreeNode* temp;
 
+
+
+    return lastRoot;
+}
+
+int BalanceValue(TreeNode* treeRoot){
+    int left =  treeHeight(treeRoot->leftSubTree);
+    int right = treeHeight(treeRoot->rightSubTree);
+    return left-right;
+}
+
+int treeHeight(TreeNode* treeNode){
+    int height = 0;
+    if(treeNode==NULL){
+        return 0;
+    }
+    height = height + max(treeHeight( treeNode->leftSubTree)+1,1+ treeHeight(treeNode->rightSubTree));
+    return height;
 }
 
 //TODO: Not working, need fix
@@ -200,12 +236,4 @@ int isUpperCase(char letter) {
     }
 }
 
-TreeNode *CreateNode(char word[10]) {
-    TreeNode *treeNode;
-    treeNode = malloc(sizeof(TreeNode));
-    strcpy(treeNode->word, word);
-    treeNode->usedTimes = 1;
-    treeNode->leftSubTree = NULL;
-    treeNode->rightSubTree = NULL;
-    return treeNode;
-}
+

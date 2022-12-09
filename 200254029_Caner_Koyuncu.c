@@ -20,8 +20,6 @@ TreeNode *CreateTree(char *);
 
 TreeNode *TreeBalancer(TreeNode *);
 
-TreeNode *PrintTree(TreeNode *);
-
 char *toLower(char *);
 
 int isUpperCase(char);
@@ -36,11 +34,10 @@ TreeNode *PrintDifferentWords(TreeNode *);
 
 void Menu(TreeNode *);
 
-int main(int argc, char **argv) {
+int main() {
     TreeNode *rootNode;
     rootNode = CreateTree("Words.txt");
-    TreeBalancer(rootNode);
-    printf("Max height: %d", TreeHeight(rootNode));
+    // printf("Max = %d", TreeHeight(rootNode));
     Menu(rootNode);
     free(rootNode);
     return 0;
@@ -79,6 +76,28 @@ void Menu(TreeNode *treeRoot) {
     } while (flag);
 }
 
+TreeNode *PrintDifferentWords(TreeNode *treeRoot) {
+    if (treeRoot == NULL) {
+        return NULL;
+    }
+
+    PrintDifferentWords((TreeNode *) treeRoot->rightSubTree);
+    printf("%s, %d times\n", treeRoot->word, treeRoot->usedTimes);
+    PrintDifferentWords((TreeNode *) treeRoot->leftSubTree);
+
+}
+
+TreeNode *PrintAlphabeticOrder(TreeNode *treeRoot) {
+    if (treeRoot == NULL) {
+        return NULL;
+    }
+    PrintAlphabeticOrder((TreeNode *) (TreeNode *) treeRoot->leftSubTree);
+    printf("%s        ", treeRoot->word);
+    printf("times %d\n", treeRoot->usedTimes);
+    PrintAlphabeticOrder((TreeNode *) treeRoot->rightSubTree);
+
+}
+
 void SearchWordInTree(TreeNode *treeRoot) {
     char word[10];
     char *word1[10];
@@ -89,15 +108,15 @@ void SearchWordInTree(TreeNode *treeRoot) {
     scanf(" %s", word);
     printf("\n");
     while (flag) {
-        strcpy(word1, toLower(treeRoot->word));
-        strcpy(word2, toLower(word));
-        if (strcmp(word1, word2) == 0) {
+        strcpy((char *) word1, toLower(treeRoot->word));
+        strcpy((char *) word2, toLower(word));
+        if (strcmp((const char *) word1, (const char *) word2) == 0) {
             printf("%s        Depth:%d     %d Time", treeRoot->word, depth, treeRoot->usedTimes);
             flag = false;
             break;
         } else if (strcmp(treeRoot->word, word) < 0) {
             if (treeRoot->rightSubTree != NULL) {
-                treeRoot = treeRoot->rightSubTree;
+                treeRoot = (TreeNode *) treeRoot->rightSubTree;
                 depth++;
             } else {
                 flag = false;
@@ -106,7 +125,7 @@ void SearchWordInTree(TreeNode *treeRoot) {
             }
         } else if (strcmp(treeRoot->word, word) > 0) {
             if (treeRoot->leftSubTree != NULL) {
-                treeRoot = treeRoot->leftSubTree;
+                treeRoot = (TreeNode *) treeRoot->leftSubTree;
                 depth++;
             } else {
                 flag = false;
@@ -118,33 +137,6 @@ void SearchWordInTree(TreeNode *treeRoot) {
     }
     strcpy(word, "");
     printf("\n");
-}
-
-TreeNode *PrintAlphabeticOrder(TreeNode *treeRoot) {
-    if (treeRoot == NULL) {
-        return NULL;
-    }
-    PrintAlphabeticOrder(treeRoot->leftSubTree);
-    printf("%s        ", treeRoot->word);
-    printf("times %d\n", treeRoot->usedTimes);
-    PrintAlphabeticOrder(treeRoot->rightSubTree);
-}
-
-TreeNode *PrintDifferentWords(TreeNode *treeRoot) {
-    if (treeRoot == NULL) {
-        return NULL;
-    }
-
-    PrintDifferentWords(treeRoot->rightSubTree);
-    printf("%s, %d times\n", treeRoot->word, treeRoot->usedTimes);
-    PrintDifferentWords(treeRoot->leftSubTree);
-
-}
-
-//TODO: Does not work
-TreeNode *PrintTree(TreeNode *treeRoot) {
-
-    printf("------------------------------------------------------------------------------------------------------------------------");
 }
 
 TreeNode *CreateNode(char word[10]) {
@@ -162,7 +154,7 @@ TreeNode *CreateTree(char *fileName) {
     TreeNode *temp = NULL;
     TreeNode *onThisNode = NULL;
     char tempString[10];
-    int i = 0;
+    int i;
     bool flag;
     char word1[10];
     char word2[10];
@@ -178,7 +170,7 @@ TreeNode *CreateTree(char *fileName) {
         } else {
             flag = true;
             while (flag) {
-                printf("%s, ", onThisNode->word);
+                // printf("%s, ", onThisNode->word);
                 strcpy(word1, toLower(onThisNode->word));
                 strcpy(word2, toLower(tempString));
                 i = strcmp(word1, word2);
@@ -188,29 +180,30 @@ TreeNode *CreateTree(char *fileName) {
                     break;
                 } else if (i > 0) {
                     if (onThisNode->leftSubTree != NULL) {
-                        onThisNode = onThisNode->leftSubTree;
+                        onThisNode = (TreeNode *) onThisNode->leftSubTree;
                         continue;
                     } else {
-                        onThisNode->leftSubTree = temp;
+                        onThisNode->leftSubTree = (struct TreeNode *) temp;
 //                        printf("___LEFT___");
-                        printf(" %s", temp->word);
+//                         printf(" %s", temp->word);
                         flag = false;
                         break;
                     }
                 } else if (i < 0) {
                     if (onThisNode->rightSubTree != NULL) {
-                        onThisNode = onThisNode->rightSubTree;
+                        onThisNode = (TreeNode *) onThisNode->rightSubTree;
                         continue;
                     } else {
-                        onThisNode->rightSubTree = temp;
+                        onThisNode->rightSubTree = (struct TreeNode *) temp;
 //                        printf("___RIGHT___");
-                        printf(" %s", temp->word);
+//                         printf(" %s", temp->word);
                         flag = false;
                         break;
                     }
                 }
             }
-            printf("\n");
+            // printf("\n");
+            rootTemp = TreeBalancer(rootTemp);
         }
     }
     return rootTemp;
@@ -218,46 +211,43 @@ TreeNode *CreateTree(char *fileName) {
 
 TreeNode *TreeBalancer(TreeNode *tree) {
     int value;
-    TreeNode *mainRoot;
-    TreeNode *leftTree;
-    TreeNode *rightTree;
-    TreeNode *temp;
     value = BalanceValue(tree);
     // printf("Value: %d", value);
-    mainRoot = tree;
-    leftTree = tree->leftSubTree;
-    rightTree = tree->rightSubTree;
+    TreeNode *temp1;
+    TreeNode *temp2;
     int lastValue = value;
+    bool flag = true;
     //TODO: Infinity loop control and fix
-    while (abs(value) > 3 || !(value >= lastValue)) {
-        printf("Height: %d\n", value);
-        printf("Root: %s\n", tree->word);
+    while (abs(value) < abs(lastValue) || flag) {
+        flag = false;
         if (value < 0) {
             //if the right tree is 3 nodes deeper than the left tree
+            temp1 = (TreeNode *) tree->rightSubTree;
+            temp2 = (TreeNode *) temp1->leftSubTree;
+            tree->rightSubTree = (struct TreeNode *) temp2;
+            temp1->leftSubTree = (struct TreeNode *) tree;
+            tree = temp1;
 
-            temp = rightTree->leftSubTree;
-            rightTree->leftSubTree = mainRoot;
-            mainRoot->rightSubTree = temp;
-            mainRoot = rightTree;
-            rightTree = mainRoot->rightSubTree;
-            leftTree = mainRoot->leftSubTree;
         } else {
             //if the left tree is 3 nodes deeper than the right tree
-
+            temp1 = (TreeNode *) tree->leftSubTree;
+            temp2 = (TreeNode *) temp1->rightSubTree;
+            tree->leftSubTree = (struct TreeNode *) temp2;
+            temp1->rightSubTree = (struct TreeNode *) tree;
+            tree = temp1;
         }
         lastValue = value;
-        value = BalanceValue(mainRoot);
+        value = BalanceValue(tree);
+
     }
-    printf("Root: %s", mainRoot->word);
-    printf("%d", TreeHeight(mainRoot));
-    printf("%d", TreeHeight(mainRoot->rightSubTree));
-    printf("%d", TreeHeight(mainRoot->leftSubTree));
-    return mainRoot;
+    // printf("Root: %s", tree->word);
+    // printf(", Height: %d\n", TreeHeight(tree));
+    return tree;
 }
 
 int BalanceValue(TreeNode *treeRoot) {
-    int left = TreeHeight(treeRoot->leftSubTree);
-    int right = TreeHeight(treeRoot->rightSubTree);
+    int left = TreeHeight((TreeNode *) treeRoot->leftSubTree);
+    int right = TreeHeight((TreeNode *) treeRoot->rightSubTree);
     return left - right;
 }
 
@@ -266,7 +256,7 @@ int TreeHeight(TreeNode *treeNode) {
     if (treeNode == NULL) {
         return 0;
     }
-    height = height + max(TreeHeight(treeNode->leftSubTree) + 1, 1 + TreeHeight(treeNode->rightSubTree));
+    height = height + max(TreeHeight((TreeNode *) treeNode->leftSubTree) + 1, 1 + TreeHeight((TreeNode *) treeNode->rightSubTree));
     return height;
 }
 
@@ -295,7 +285,3 @@ char *toLower(char string[10]) {
     text[cursor] = '\0';
     return text;
 }
-
-
-
-
